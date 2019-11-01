@@ -14,7 +14,7 @@ public abstract class Driver : MonoBehaviour {
     [SerializeField]
     protected Transform eyes;
     [SerializeField]
-    protected List<double> inputs;
+    protected List<double> mapInputData;
     
     protected string path;
     protected float translationIn;
@@ -35,14 +35,17 @@ public abstract class Driver : MonoBehaviour {
         
         eyes.localRotation = Quaternion.Euler(startLook * 90);
         
-        for (int i = 2; i < inputs.Count; i++) {
+        for (int i = 2; i < mapInputData.Count; i++) {
             
             Ray ray = new Ray(eyes.position, eyes.forward);
-            inputs[i] = Physics.Raycast(ray, out RaycastHit hit, lookDist) ? 
-                Math.Round(1 - (hit.distance / lookDist), 2) : 
-                0;
-            Debug.DrawRay(ray.origin, ray.direction * (1 - (float)inputs[i]), Color.red);
+            //look distance normalized and inverted for proper neuron firing
+            mapInputData[i] = Physics.Raycast(ray, out RaycastHit hit, lookDist) ? 
+                Math.Round(1 - (hit.distance / lookDist), 2) : 0;
+            Debug.DrawRay(ray.origin, ray.direction * (1 - (float)mapInputData[i]), Color.red);
             eyes.Rotate(Vector3.up * scanStep);
+            
+           // print("Recording map data " + i + " = " + mapInputData[i]);
+            
             
         }
         

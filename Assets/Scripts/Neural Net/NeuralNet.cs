@@ -53,6 +53,7 @@ public class NeuralNet{
 		if(inputValues.Count != inputCount)
 		{
 			Debug.Log("ERROR: Number of Inputs must be " + inputCount);
+			Debug.Log("\"input count\" = " + inputCount + ", and actual count is: " + inputValues.Count);
 			return outputValues;
 		}
 

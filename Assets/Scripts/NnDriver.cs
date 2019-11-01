@@ -14,9 +14,6 @@ public class NnDriver : Driver {
     private float trainingProgress;
     private double sumSquareError;
     private double lastSumSquareError;
-    private List<double> outputs = new List<double>(2);
-
-    private List<double> prediction;
 
     private void Start() {
         //rule of thumb: neruonCount = 2 x Inputs
@@ -37,10 +34,10 @@ public class NnDriver : Driver {
 
     protected override void GetUserInput() {
 
-        outputs = net.Predict(inputs, new List<double> {0, 0});
+        List<double> prediction = net.Predict(mapInputData, new List<double> {0, 0});
 
-        translationIn = (float)outputs[0];
-        rotationIn = (float) outputs[1];
+        translationIn = (float)prediction[0];
+        rotationIn = (float) prediction[1];
 
     }
     
@@ -52,6 +49,10 @@ public class NnDriver : Driver {
                 string[][] rawInputs = new StreamReader(path).ReadToEnd().Split2D('\n', ',');
 
                 for (int i = 0; i < rawInputs.Length; i++) {
+                    
+                    List<double> trainedOutputs = new List<double>();
+                    mapInputData.Clear();
+                    
                     for (int j = 0; j < rawInputs[i].Length; j++) {
 
                         Debug.Log("Attempting to parse: " + rawInputs[i][j]);
@@ -62,19 +63,20 @@ public class NnDriver : Driver {
                         }
 
                         if (j < net.outputCount - 1) { //first elements are output, not input
-                            outputs.Add(value);
+                            print("Adding output: " + value + ", at index " + j);
+                            trainedOutputs.Add(value);
                         } else {
-                            inputs.Add(value);
+                            print("Adding input: " + value + ", at index " + j);
+                            mapInputData.Add(value);
                         }
-
-                        prediction = net.Train(inputs, outputs);
-                    
-                        double sqError = 0;
-                        for (int k = 0; k < outputs.Count; k++) {
-                            sqError += Math.Pow(outputs[k] - prediction[k], 2);
-                        }
-                        sumSquareError += sqError;
                     }
+                    List<double> predictions = net.Train(mapInputData, trainedOutputs);
+                    
+                    double sqError = 0;
+                    for (int k = 0; k < trainedOutputs.Count; k++) {
+                        sqError += Math.Pow(trainedOutputs[k] - predictions[k], 2);
+                    }
+                    sumSquareError += sqError;
                 }
                 sumSquareError /= rawInputs.Length; // divide by line count
                 lastSumSquareError = sumSquareError;

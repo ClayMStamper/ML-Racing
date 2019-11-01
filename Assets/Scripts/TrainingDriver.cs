@@ -29,8 +29,8 @@ public class TrainingDriver : Driver {
 
     protected override void Move() {
 
-        inputs[0] = Math.Round(translationIn.Remap(-1, 1, 0, 1), 2);
-        inputs[1] = Math.Round(rotationIn.Remap(-1, 1, 0, 1), 2);
+        mapInputData[0] = Math.Round(translationIn.Remap(-1, 1, 0, 1), 2);
+        mapInputData[1] = Math.Round(rotationIn.Remap(-1, 1, 0, 1), 2);
         
         base.Move();
         
@@ -41,15 +41,13 @@ public class TrainingDriver : Driver {
         string dataString = "";
 
         //add entries with commas
-        for (int i = 0; i < inputs.Count - 2; i++) {
-            dataString += inputs[i] + ",";
+        for (int i = 0; i < mapInputData.Count - 2; i++) {
+            dataString += mapInputData[i] + ",";
         }
 
         //add final entry without comma
-        dataString += inputs[inputs.Count - 1];
-        
-        if (!trainingData.Contains(dataString)) //no duplicates
-            trainingData.Add(dataString);
+        dataString += mapInputData[mapInputData.Count - 1];
+        trainingData.Add(dataString);
         
     }
     
