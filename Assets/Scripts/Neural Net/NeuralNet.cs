@@ -39,12 +39,12 @@ public class NeuralNet{
 	public List<double> Train(List<double> inputValues, List<double> desiredOutput)
 	{
 		List<double> outputValues = new List<double>();
-		outputValues = CalcOutput(inputValues, desiredOutput);
+		outputValues = Predict(inputValues, desiredOutput);
 		UpdateWeights(outputValues, desiredOutput);
 		return outputValues;
 	}
 
-	public List<double> CalcOutput(List<double> inputValues, List<double> desiredOutput)
+	public List<double> Predict(List<double> inputValues, List<double> desiredOutput)
 	{
 		List<double> inputs = new List<double>();
 		List<double> outputValues = new List<double>();

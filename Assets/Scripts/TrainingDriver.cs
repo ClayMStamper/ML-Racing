@@ -6,17 +6,12 @@ using UnityEngine;
 
 public class TrainingDriver : Driver {
 
-
-
     private List<string> trainingData = new List<string>();
     private StreamWriter writer;
-
-    private void Start() {
-        string path = Application.dataPath + "/trainingData.txt";
-        writer = File.CreateText(path);
-    }
-
     private void OnApplicationQuit() {
+        
+        writer = File.CreateText(path);
+
         foreach (string str in trainingData) {
             writer.WriteLine(str);
         }
@@ -25,46 +20,23 @@ public class TrainingDriver : Driver {
 
     void Update()
     {
+        GetUserInput();
         Move();
         ScanMap();
+        StoreScanData();
+
     }
 
-    private void Move() {
-        
-        float translationIn = Input.GetAxis("Vertical");
-        float rotationIn = Input.GetAxis("Horizontal") ;
+    protected override void Move() {
 
-        inputs[0] = Math.Round(translationIn, 2);
-        inputs[1] = Math.Round(rotationIn, 2);
+        inputs[0] = Math.Round(translationIn.Remap(-1, 1, 0, 1), 2);
+        inputs[1] = Math.Round(rotationIn.Remap(-1, 1, 0, 1), 2);
         
-        float translation = translationIn * speed * Time.deltaTime;
-        float rotation = rotationIn* rotationSpeed * Time.deltaTime;
-
-        transform.Translate(0, 0, translation );
-        transform.Rotate(0, rotation, 0);
+        base.Move();
         
     }
 
-    private void ScanMap() {
-
-        eyes.localRotation = Quaternion.Euler(startLook * 90);
-        
-        for (int i = 2; i < inputs.Count; i++) {
-            
-            Ray ray = new Ray(eyes.position, eyes.forward);
-            inputs[i] = Physics.Raycast(ray, out RaycastHit hit, lookDist) ? 
-                Math.Round(1 - (hit.distance / lookDist), 2) : 
-                0;
-            Debug.DrawRay(ray.origin, ray.direction * (1 - (float)inputs[i]), Color.red);
-            eyes.Rotate(Vector3.up * scanStep);
-            
-        }
-        
-        ParseData();
-        
-    }
-
-    private void ParseData() {
+    private void StoreScanData() {
 
         string dataString = "";
 
@@ -76,7 +48,8 @@ public class TrainingDriver : Driver {
         //add final entry without comma
         dataString += inputs[inputs.Count - 1];
         
-        trainingData.Add(dataString);
+        if (!trainingData.Contains(dataString)) //no duplicates
+            trainingData.Add(dataString);
         
     }
     
