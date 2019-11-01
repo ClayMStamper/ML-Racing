@@ -10,6 +10,7 @@ public abstract class Driver : MonoBehaviour {
     public float lookDist = 25f;
     public float scanStep = 45;
     public Vector3 startLook = -Vector3.up; //negative on y axis is left - cover fan left to right
+    public int decimalPrecision = 0;
     
     [SerializeField]
     protected Transform eyes;
@@ -40,7 +41,7 @@ public abstract class Driver : MonoBehaviour {
             Ray ray = new Ray(eyes.position, eyes.forward);
             //look distance normalized and inverted for proper neuron firing
             mapInputData[i] = Physics.Raycast(ray, out RaycastHit hit, lookDist) ? 
-                Math.Round(1 - (hit.distance / lookDist), 2) : 0;
+                Math.Round(1 - (hit.distance / lookDist), decimalPrecision) : 0;
             Debug.DrawRay(ray.origin, ray.direction * (1 - (float)mapInputData[i]), Color.red);
             eyes.Rotate(Vector3.up * scanStep);
             

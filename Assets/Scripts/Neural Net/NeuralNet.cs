@@ -38,13 +38,15 @@ public class NeuralNet{
 
 	public List<double> Train(List<double> inputValues, List<double> desiredOutput)
 	{
-		List<double> outputValues = new List<double>();
-		outputValues = Predict(inputValues, desiredOutput);
-		UpdateWeights(outputValues, desiredOutput);
-		return outputValues;
+		List<double> predictedOutput = new List<double>();
+		predictedOutput = Predict(inputValues);
+		//Print("Values in", inputValues);
+		//Print("Predicted Values", predictedOutput);
+		UpdateWeights(predictedOutput, desiredOutput);
+		return predictedOutput;
 	}
 
-	public List<double> Predict(List<double> inputValues, List<double> desiredOutput)
+	public List<double> Predict(List<double> inputValues)
 	{
 		List<double> inputs = new List<double>();
 		List<double> outputValues = new List<double>();
@@ -68,22 +70,22 @@ public class NeuralNet{
 
 				for(int j = 0; j < layers[i].numNeurons; j++)
 				{
-					double N = 0;
+					double neuronVal = 0;
 					layers[i].neurons[j].inputs.Clear();
 
 					for(int k = 0; k < layers[i].neurons[j].numInputs; k++)
 					{
 					    layers[i].neurons[j].inputs.Add(inputs[currentInput]);
-						N += layers[i].neurons[j].weights[k] * inputs[currentInput];
+						neuronVal += layers[i].neurons[j].weights[k] * inputs[currentInput];
 						currentInput++;
 					}
 
-					N -= layers[i].neurons[j].bias;
+					neuronVal -= layers[i].neurons[j].bias;
 
 					if(i == hiddenLayerCount)
-						layers[i].neurons[j].output = ActivationFunctionO(N);
+						layers[i].neurons[j].output = ActivationFunctionO(neuronVal);
 					else
-						layers[i].neurons[j].output = ActivationFunction(N);
+						layers[i].neurons[j].output = ActivationFunction(neuronVal);
 					
 					outputValues.Add(layers[i].neurons[j].output);
 					currentInput = 0;
@@ -129,17 +131,27 @@ public class NeuralNet{
 		}
 	}
 	
-	void UpdateWeights(List<double> outputs, List<double> desiredOutput)
-	{
+	void UpdateWeights(List<double> predicted, List<double> desired) {
+		
+	//	Print("update predicted", predicted);
+	//	Print("update desired", desired);
+		
 		double error;
 		for(int i = hiddenLayerCount; i >= 0; i--)
 		{
+			Layer thisLayer = layers[i];
+			
 			for(int j = 0; j < layers[i].numNeurons; j++)
 			{
+				
+				if (predicted.Count <= 0 || desired.Count <= 0)
+					continue;
+				
+				
 				if(i == hiddenLayerCount)
 				{
-					error = desiredOutput[j] - outputs[j];
-					layers[i].neurons[j].errorGradient = outputs[j] * (1-outputs[j]) * error;
+					error = desired[j] - predicted[j];
+					layers[i].neurons[j].errorGradient = predicted[j] * (1-predicted[j]) * error;
 				}
 				else
 				{
@@ -155,7 +167,7 @@ public class NeuralNet{
 				{
 					if(i == hiddenLayerCount)
 					{
-						error = desiredOutput[j] - outputs[j];
+						error = desired[j] - predicted[j];
 						layers[i].neurons[j].weights[k] += alpha * layers[i].neurons[j].inputs[k] * error;
 					}
 					else
@@ -203,4 +215,19 @@ public class NeuralNet{
     	double k = (double) System.Math.Exp(value);
     	return k / (1.0f + k);
 	}
+
+	void Print(string name, List<double> vals) {
+
+		string str = "";
+		
+		str += name + " = \n";
+		foreach (double val in vals) {
+			str += val;
+			str += "\n";
+		}
+		
+		Debug.Log(str + '\n');
+		
+	}
+	
 }

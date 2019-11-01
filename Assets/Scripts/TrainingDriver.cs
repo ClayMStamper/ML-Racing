@@ -11,9 +11,13 @@ public class TrainingDriver : Driver {
     private void OnApplicationQuit() {
         
         writer = File.CreateText(path);
+        List<string> duplicates = new List<string>();
 
         foreach (string str in trainingData) {
-            writer.WriteLine(str);
+            if (!duplicates.Contains(str)) {
+                writer.WriteLine(str);
+                duplicates.Add(str);
+            }
         }
         writer.Close();
     }
@@ -29,8 +33,8 @@ public class TrainingDriver : Driver {
 
     protected override void Move() {
 
-        mapInputData[0] = Math.Round(translationIn.Remap(-1, 1, 0, 1), 2);
-        mapInputData[1] = Math.Round(rotationIn.Remap(-1, 1, 0, 1), 2);
+        mapInputData[0] = Math.Round(translationIn.Remap(-1, 1, 0, 1), decimalPrecision);
+        mapInputData[1] = Math.Round(rotationIn.Remap(-1, 1, 0, 1), decimalPrecision);
         
         base.Move();
         
@@ -41,8 +45,9 @@ public class TrainingDriver : Driver {
         string dataString = "";
 
         //add entries with commas
-        for (int i = 0; i < mapInputData.Count - 2; i++) {
+        for (int i = 0; i < mapInputData.Count - 1; i++) {
             dataString += mapInputData[i] + ",";
+           // print("Data string at index " + i + " = " + dataString);
         }
 
         //add final entry without comma

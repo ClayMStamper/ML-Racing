@@ -34,7 +34,7 @@ public class NnDriver : Driver {
 
     protected override void GetUserInput() {
 
-        List<double> prediction = net.Predict(mapInputData, new List<double> {0, 0});
+        List<double> prediction = net.Predict(mapInputData);
 
         translationIn = (float)prediction[0];
         rotationIn = (float) prediction[1];
@@ -55,18 +55,22 @@ public class NnDriver : Driver {
                     
                     for (int j = 0; j < rawInputs[i].Length; j++) {
 
-                        Debug.Log("Attempting to parse: " + rawInputs[i][j]);
+                        string rawDataSplit = rawInputs[i][j];
+                        if (string.IsNullOrEmpty(rawDataSplit))
+                            continue;
+                        
+//                        Debug.Log("Attempting to parse: " + rawInputs[i][j]);
                         float value;
-                        if (!float.TryParse(rawInputs[i][j], out value)) {
-                            Debug.LogError("Failed to parse: " + rawInputs[i][j]);
-                            Debug.Break();
+                        if (!float.TryParse(rawDataSplit, out value)) {
+                            Debug.LogError("Failed to parse: " + rawDataSplit);
+                            continue;
                         }
 
-                        if (j < net.outputCount - 1) { //first elements are output, not input
-                            print("Adding output: " + value + ", at index " + j);
+                        if (j < net.outputCount) { //first elements are output, not input
+                            //    print("Adding output: " + value + ", at index " + j);
                             trainedOutputs.Add(value);
                         } else {
-                            print("Adding input: " + value + ", at index " + j);
+                            //    print("Adding input: " + value + ", at index " + j);
                             mapInputData.Add(value);
                         }
                     }
