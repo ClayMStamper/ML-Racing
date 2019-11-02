@@ -1774,7 +1774,7 @@ MonoBehaviour:
   lookDist: 25
   scanStep: 45
   startLook: {x: -0, y: -1, z: -0}
-  decimalPrecision: 0
+  decimalPrecision: 1
   eyes: {fileID: 1461642625}
   mapInputData: []
   epochs: 1000
@@ -2631,7 +2631,7 @@ MonoBehaviour:
   lookDist: 25
   scanStep: 45
   startLook: {x: -0, y: -1, z: -0}
-  decimalPrecision: 0
+  decimalPrecision: 1
   eyes: {fileID: 1274003201}
   mapInputData:
   - 0

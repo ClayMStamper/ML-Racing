@@ -38,8 +38,7 @@ public class NeuralNet{
 
 	public List<double> Train(List<double> inputValues, List<double> desiredOutput)
 	{
-		List<double> predictedOutput = new List<double>();
-		predictedOutput = Predict(inputValues);
+		List<double> predictedOutput = Predict(inputValues);
 		//Print("Values in", inputValues);
 		//Print("Predicted Values", predictedOutput);
 		UpdateWeights(predictedOutput, desiredOutput);
@@ -48,15 +47,19 @@ public class NeuralNet{
 
 	public List<double> Predict(List<double> inputValues)
 	{
-		List<double> inputs = new List<double>();
+		
+		Print("Values input to prediction ", inputValues);
+
+		List<double> inputs;
 		List<double> outputValues = new List<double>();
 		int currentInput = 0;
 
 		if(inputValues.Count != inputCount)
 		{
-			Debug.Log("ERROR: Number of Inputs must be " + inputCount);
+			//Debug.Log("ERROR: Number of Inputs must be " + inputCount);
 			Debug.Log("\"input count\" = " + inputCount + ", and actual count is: " + inputValues.Count);
-			return outputValues;
+			
+			//return outputValues;
 		}
 
 		inputs = new List<double>(inputValues);

@@ -22,12 +22,18 @@ public class NnDriver : Driver {
     }
 
     private void Update() {
-        
+
+        if (Input.GetKey(KeyCode.Space)) {
+            StopAllCoroutines();
+            trainingDone = true;
+        }
+
         if (!trainingDone)
             return;
 
         ScanMap();
-        GetUserInput();
+        Print("Map view: ", mapInputData);
+        GetUserInput(); //AI input in this case
         Move();
         
     }
@@ -45,12 +51,12 @@ public class NnDriver : Driver {
         
         string path = Application.dataPath + "/trainingData.txt";
         if (File.Exists(path)) {
+            string[][] rawInputs = new StreamReader(path).ReadToEnd().Split2D('\n', ',');
+            epochs = rawInputs.Length;
             for (int e = 0; e < epochs; e++) {
-                string[][] rawInputs = new StreamReader(path).ReadToEnd().Split2D('\n', ',');
-
                 for (int i = 0; i < rawInputs.Length; i++) {
                     
-                    List<double> trainedOutputs = new List<double>();
+                    List<double> recordedUserInput = new List<double>();
                     mapInputData.Clear();
                     
                     for (int j = 0; j < rawInputs[i].Length; j++) {
@@ -68,19 +74,23 @@ public class NnDriver : Driver {
 
                         if (j < net.outputCount) { //first elements are output, not input
                             //    print("Adding output: " + value + ", at index " + j);
-                            trainedOutputs.Add(value);
+                            recordedUserInput.Add(value);
                         } else {
                             //    print("Adding input: " + value + ", at index " + j);
                             mapInputData.Add(value);
                         }
                     }
-                    List<double> predictions = net.Train(mapInputData, trainedOutputs);
-                    
-                    double sqError = 0;
-                    for (int k = 0; k < trainedOutputs.Count; k++) {
-                        sqError += Math.Pow(trainedOutputs[k] - predictions[k], 2);
-                    }
-                    sumSquareError += sqError;
+
+                    if (mapInputData.Count > 0) {
+                        List<double> predictions = net.Train(mapInputData, recordedUserInput);
+
+                        double sqError = 0;
+                        for (int k = 0; k < recordedUserInput.Count; k++) {
+                            sqError += Math.Pow(recordedUserInput[k] - predictions[k], 2);
+                        }
+
+                        sumSquareError += sqError;
+                    } 
                 }
                 sumSquareError /= rawInputs.Length; // divide by line count
                 lastSumSquareError = sumSquareError;
@@ -98,6 +108,20 @@ public class NnDriver : Driver {
         GUI.Label(new Rect(25, 25, 250, 30), "Error: " + lastSumSquareError);
         GUI.Label(new Rect(25, 40, 250, 30), "Alpha: " + net.alpha);
         GUI.Label(new Rect(25, 55, 250, 30), "Training Progress: " + trainingProgress);
+    }
+    
+    void Print(string name, List<double> vals) {
+
+        string str = "";
+		
+        str += name + " = \n";
+        foreach (double val in vals) {
+            str += val;
+            str += "\n";
+        }
+		
+        Debug.Log(str + '\n');
+		
     }
     
 }
