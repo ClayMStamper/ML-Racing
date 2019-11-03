@@ -48,7 +48,7 @@ public class NeuralNet{
 	public List<double> Predict(List<double> inputValues)
 	{
 		
-		Print("Values input to prediction ", inputValues);
+//		Print("Values input to prediction ", inputValues);
 
 		List<double> inputs;
 		List<double> outputValues = new List<double>();
@@ -57,9 +57,9 @@ public class NeuralNet{
 		if(inputValues.Count != inputCount)
 		{
 			//Debug.Log("ERROR: Number of Inputs must be " + inputCount);
-			Debug.Log("\"input count\" = " + inputCount + ", and actual count is: " + inputValues.Count);
+			//Debug.Log("\"input count\" = " + inputCount + ", and actual count is: " + inputValues.Count);
 			
-			//return outputValues;
+			return new List<double>{1,1};
 		}
 
 		inputs = new List<double>(inputValues);

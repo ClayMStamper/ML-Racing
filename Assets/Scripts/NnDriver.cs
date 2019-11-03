@@ -15,7 +15,10 @@ public class NnDriver : Driver {
     private double sumSquareError;
     private double lastSumSquareError;
 
+    private Vector3 startPos;
+    
     private void Start() {
+        startPos = transform.position;
         //rule of thumb: neruonCount = 2 x Inputs
         net = new NeuralNet(5, 2, 1, 10, learningRate);
         StartCoroutine(LoadTrainingSet());
@@ -24,15 +27,14 @@ public class NnDriver : Driver {
     private void Update() {
 
         if (Input.GetKey(KeyCode.Space)) {
-            StopAllCoroutines();
-            trainingDone = true;
+            transform.position = startPos;
         }
 
         if (!trainingDone)
             return;
 
         ScanMap();
-        Print("Map view: ", mapInputData);
+       // Print("Map view: ", mapInputData);
         GetUserInput(); //AI input in this case
         Move();
         
@@ -40,11 +42,31 @@ public class NnDriver : Driver {
 
     protected override void GetUserInput() {
 
+       // Print("Lidar data", mapInputData);
         List<double> prediction = net.Predict(mapInputData);
 
         translationIn = (float)prediction[0];
-        rotationIn = (float) prediction[1];
+        rotationIn = ((float) prediction[1]).Remap(0, 1, -1, 1);
 
+    }
+    
+    protected override void ScanMap() {
+        
+        eyes.localRotation = Quaternion.Euler(startLook * 90);
+        mapInputData = new List<double>();
+        
+        for (int i = 0; i < net.inputCount; i++) {
+            
+            Ray ray = new Ray(eyes.position, eyes.forward);
+            //look distance normalized and inverted for proper neuron firing
+            double mapData = Physics.Raycast(ray, out RaycastHit hit, lookDist) ? 
+                Math.Round(1 - (hit.distance / lookDist), decimalPrecision) : 0;
+            mapInputData.Add(mapData);
+            Debug.DrawRay(ray.origin, ray.direction * (1 - (float)mapInputData[i]), Color.red);
+            eyes.Rotate(Vector3.up * scanStep);
+            // print("Recording map data " + i + " = " + mapInputData[i]);
+        }
+        
     }
     
     IEnumerator LoadTrainingSet() {
@@ -52,7 +74,6 @@ public class NnDriver : Driver {
         string path = Application.dataPath + "/trainingData.txt";
         if (File.Exists(path)) {
             string[][] rawInputs = new StreamReader(path).ReadToEnd().Split2D('\n', ',');
-            epochs = rawInputs.Length;
             for (int e = 0; e < epochs; e++) {
                 for (int i = 0; i < rawInputs.Length; i++) {
                     

@@ -8,6 +8,7 @@ public class TrainingDriver : Driver {
 
     private List<string> trainingData = new List<string>();
     private StreamWriter writer;
+    
     private void OnApplicationQuit() {
         
         writer = File.CreateText(path);
